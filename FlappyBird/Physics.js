@@ -16,7 +16,11 @@ const Physics = (entities, { touches, time }) => {
                 world.gravity.y = 1.2;
             }
             hadTouches = true;
-            Matter.Body.applyForce( bird, bird.position, {x: 0.00, y: -0.05});
+            //Matter.Body.applyForce( bird, bird.position, {x: 0.00, y: -0.05});
+            Matter.Body.setVelocity(bird, {
+              x: bird.velocity.x,
+              y: -10
+            });
         }
     });
 
