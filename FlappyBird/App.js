@@ -43,12 +43,23 @@ export default class App extends Component {
     setupWorld = () => {
         let engine = Matter.Engine.create({ enableSleeping: false });
         let world = engine.world;
-        world.gravity.y = 1.2;
+        world.gravity.y = 0.0;
 
-        let bird = Matter.Bodies.rectangle( Constants.MAX_WIDTH / 4, Constants.MAX_HEIGHT / 2, Constants.BIRD_WIDTH, Constants.BIRD_HEIGHT);
+        let bird = Matter.Bodies.rectangle( Constants.MAX_WIDTH / 2, Constants.MAX_HEIGHT / 2, Constants.BIRD_WIDTH, Constants.BIRD_HEIGHT);
         bird.restitution = 20;
-        let floor = Matter.Bodies.rectangle( Constants.MAX_WIDTH / 2, Constants.MAX_HEIGHT - 25, Constants.MAX_WIDTH, 50, { isStatic: true });
-
+        let floor1 = Matter.Bodies.rectangle(
+            Constants.MAX_WIDTH / 2,
+            Constants.MAX_HEIGHT - 25,
+            Constants.MAX_WIDTH,
+            50, { isStatic: true }
+        );
+        let floor2 = Matter.Bodies.rectangle(
+            Constants.MAX_WIDTH + (Constants.MAX_WIDTH / 2),
+            Constants.MAX_HEIGHT - 25,
+            Constants.MAX_WIDTH,
+            50, { isStatic: true }
+        );
+        /*
         let [pipe1Height, pipe2Height] = generatePipes();
 
         let pipe1 = Matter.Bodies.rectangle( Constants.MAX_WIDTH - (Constants.PIPE_WIDTH / 2), pipe1Height / 2, Constants.PIPE_WIDTH, pipe1Height, { isStatic: true });
@@ -58,8 +69,8 @@ export default class App extends Component {
 
         let pipe3 = Matter.Bodies.rectangle( Constants.MAX_WIDTH * 2 - (Constants.PIPE_WIDTH / 2), pipe3Height / 2, Constants.PIPE_WIDTH, pipe3Height, { isStatic: true });
         let pipe4 = Matter.Bodies.rectangle( Constants.MAX_WIDTH * 2 - (Constants.PIPE_WIDTH / 2), Constants.MAX_HEIGHT - (pipe4Height / 2) - 50, Constants.PIPE_WIDTH, pipe4Height, { isStatic: true });
-
-        Matter.World.add(world, [bird, floor, pipe1, pipe2, pipe3, pipe4]);
+        */
+        Matter.World.add(world, [bird, floor1]);
         Matter.Events.on(engine, 'collisionStart', (event) => {
             var pairs = event.pairs;
 
@@ -69,12 +80,14 @@ export default class App extends Component {
 
         return {
             physics: { engine: engine, world: world },
-            floor: { body: floor, size: [Constants.MAX_WIDTH, 50], color: "green", renderer: Floor },
+            floor1: { body: floor1, size: [Constants.MAX_WIDTH, 50], color: "green", renderer: Floor },
+            floor2: { body: floor2, size: [Constants.MAX_WIDTH, 50], color: "green", renderer: Floor },
             bird: { body: bird, size: [Constants.BIRD_WIDTH, Constants.BIRD_HEIGHT], pose: 1, color: 'red', renderer: Bird},
+            /*
             pipe1: { body: pipe1, size: [Constants.PIPE_WIDTH, pipe1Height], color: "green", renderer: Pipe },
             pipe2: { body: pipe2, size: [Constants.PIPE_WIDTH, pipe2Height], color: "green", renderer: Pipe },
             pipe3: { body: pipe3, size: [Constants.PIPE_WIDTH, pipe3Height], color: "green", renderer: Pipe },
-            pipe4: { body: pipe4, size: [Constants.PIPE_WIDTH, pipe4Height], color: "green", renderer: Pipe }
+            pipe4: { body: pipe4, size: [Constants.PIPE_WIDTH, pipe4Height], color: "green", renderer: Pipe }*/
         }
     }
 
@@ -97,7 +110,7 @@ export default class App extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Image style={styles.backgroundImage} resizeMode="contain" source={Images.background} />
+                <Image style={styles.backgroundImage} resizeMode="stretch" source={Images.background} />
                 <GameEngine
                     ref={(ref) => { this.gameEngine = ref; }}
                     style={styles.gameContainer}
@@ -127,7 +140,9 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         left: 0,
-        right: 0
+        right: 0,
+        width: Constants.MAX_WIDTH,
+        height: Constants.MAX_HEIGHT
     },
     gameContainer: {
         position: 'absolute',
