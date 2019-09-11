@@ -1,13 +1,18 @@
 import Matter from "matter-js";
 
 let tick = 0;
+let pose = 1;
 
 const Physics = (entities, { touches, time }) => {
     let engine = entities.physics.engine;
     let bird = entities.bird.body;
 
+    let hadTouches = false;
     touches.filter(t => t.type === "press").forEach(t => {
-        Matter.Body.applyForce( bird, bird.position, {x: 0.00, y: -0.10});
+        if (!hadTouches){
+            hadTouches = true;
+            Matter.Body.applyForce( bird, bird.position, {x: 0.00, y: -0.05});
+        }
     });
 
     for(let i=1; i<=4; i++){
@@ -18,6 +23,15 @@ const Physics = (entities, { touches, time }) => {
         }
     }
     Matter.Engine.update(engine, time.delta);
+
+    tick += 1;
+    if (tick % 5 === 0){
+        pose = pose + 1;
+        if (pose > 3){
+            pose = 1;
+        }
+        entities.bird.pose = pose;
+    }
 
     return entities;
 };
