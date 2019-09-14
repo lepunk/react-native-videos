@@ -5,13 +5,13 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		F0670F1698DC99FC7AF7DB5F /* libPods-FlappyBird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 66D6F9DBB590C73B5B121E84 /* libPods-FlappyBird.a */; };
+		1A8CDC6BAF67476C95607762 /* FB.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9002505541A14ADF8E31DE37 /* FB.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +39,7 @@
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		F0F05CBF69FAC653B3553633 /* Pods-FlappyBirdTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FlappyBirdTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FlappyBirdTests/Pods-FlappyBirdTests.debug.xcconfig"; sourceTree = "<group>"; };
 		F95C7977B22907ECBD2F4C9B /* libPods-FlappyBird-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FlappyBird-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9002505541A14ADF8E31DE37 /* FB.ttf */ = {isa = PBXFileReference; name = "FB.ttf"; path = "../assets/fonts/FB.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +114,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D2F0DF92D4C9263A223AA350 /* Pods */,
+				D6360FBAAC704BC5B61CB90F /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -141,6 +143,15 @@
 			);
 			name = Pods;
 			sourceTree = "<group>";
+		};
+		D6360FBAAC704BC5B61CB90F /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				9002505541A14ADF8E31DE37 /* FB.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -171,7 +182,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 940;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
@@ -205,6 +216,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
+				1A8CDC6BAF67476C95607762 /* FB.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
