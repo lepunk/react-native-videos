@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Image } from 'react-native';
+import { View, StyleSheet, Button, Image, SafeAreaView, Text } from 'react-native';
 import Images from './assets/Images';
 import SpriteSheet from 'rn-sprite-sheet';
 import Constants from './Constants';
@@ -11,7 +11,31 @@ export default class App extends Component {
         this.moles = [];
         this.molesPopping = 0;
 
-        this.interval = setInterval(this.popRandomMole, 350);
+        this.state = {
+            level: 1,
+            score: 0,
+            time: 60,
+            cleared: false,
+            paused: false,
+            gameover: false,
+            health: 100
+        }
+
+        this.interval = setInterval(this.popRandomMole, 750);
+        this.timeInterval = setInterval(() => {
+            if (this.state.time === 0){
+                clearInterval(this.interval);
+                clearInterval(this.timeInterval);
+                this.setState({
+                    cleared: true
+                })
+            } else {
+                this.setState({
+                    time: this.state.time - 1
+                })
+            }
+
+        }, 1000);
     }
 
     randomBetween = (min, max) => {
@@ -35,10 +59,68 @@ export default class App extends Component {
         }
     }
 
+    onScore = () => {
+        this.setState({
+            score: this.state.score + 1
+        })
+    }
+
+    onDamage = () => {
+        let targetHealth = this.state.health - 5 < 0 ? 0 : this.state.health - 5;
+
+        this.setState({
+            health: targetHealth
+        });
+    }
+
+    onHeal = () => {
+        let targetHealth = this.state.health + 5 > 100 ? 100 : this.state.health + 5;
+        this.setState({
+            health: targetHealth
+        });
+    }
+
     render(){
+        let healthBarWidth = (Constants.MAX_WIDTH - Constants.XR * 100 - Constants.XR * 60 - Constants.XR * 6) * this.state.health / 100;
         return (
             <View style={styles.container}>
                 <Image style={styles.backgroundImage} resizeMode="stretch" source={Images.background} />
+                <View style={styles.topPanel}>
+                    <SafeAreaView>
+                        <View style={styles.statsContainer}>
+                            <View style={styles.stats}>
+                                <View style={styles.levelContainer}>
+                                    <Text style={styles.levelTitle}>Level</Text>
+                                    <Text style={styles.levelNumber}>{this.state.level}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.stats}>
+                                <View style={styles.timeBar}>
+                                    <Text style={styles.timeNumber}>{this.state.time}</Text>
+                                </View>
+                                <Image style={styles.timeIcon} resizeMode="stretch" source={Images.timeIcon} />
+                            </View>
+                            <View style={styles.stats}>
+                                <View style={styles.scoreBar}>
+                                    <Text style={styles.scoreNumber}>{this.state.score}</Text>
+                                </View>
+                                <Image style={styles.scoreIcon} resizeMode="stretch" source={Images.scoreIcon} />
+                            </View>
+                            <View style={styles.stats}>
+                                <View style={styles.pauseButton}>
+                                    <Image style={styles.pauseButtonIcon} resizeMode="stretch" source={Images.pauseIcon} />
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={styles.healthBarContainer}>
+                            <View style={styles.healthBar}>
+                                <View style={[styles.healthBarInner, { width: healthBarWidth}]} />
+                            </View>
+                            <Image style={styles.healthIcon} resizeMode="stretch" source={Images.healthIcon} />
+                        </View>
+                    </SafeAreaView>
+                </View>
                 <View style={styles.playArea}>
                     {Array.apply(null, Array(4)).map((el, rowIdx) => {
                         return (
@@ -48,7 +130,14 @@ export default class App extends Component {
 
                                     return (
                                         <View style={styles.playCell} key={colIdx}>
-                                            <Mole index={moleIdx} ref={(ref) => { this.moles[moleIdx] = ref }} onFinishPopping={this.onFinishPopping} />
+                                            <Mole
+                                                index={moleIdx}
+                                                ref={(ref) => { this.moles[moleIdx] = ref }}
+                                                onFinishPopping={this.onFinishPopping}
+                                                onDamage={this.onDamage}
+                                                onHeal={this.onHeal}
+                                                onScore={this.onScore}
+                                            />
                                         </View>
                                     )
                                 })}
@@ -56,6 +145,27 @@ export default class App extends Component {
                         )
                     })}
                 </View>
+                {this.state.cleared && <View style={styles.clearScreen}>
+                    <View style={styles.clearedLevelContainer}>
+                        <Text style={styles.clearedLevelText}>Level</Text>
+                        <Text style={styles.clearedLevelText}>{this.state.level}</Text>
+                    </View>
+
+                    <View style={styles.panel}>
+                        <Text style={styles.panelTitle}>Cleared</Text>
+                        <Text style={styles.panelText}>Score: {this.state.score}</Text>
+
+                        <View style={styles.panelButtonsContainer}>
+                            <View style={styles.panelButton}>
+                                <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.restartIcon} />
+                            </View>
+
+                            <View style={styles.panelButton}>
+                                <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.playIcon} />
+                            </View>
+                        </View>
+                    </View>
+                </View>}
             </View>
         )
     }
@@ -66,10 +176,217 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column'
     },
+    clearScreen: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: Constants.MAX_WIDTH,
+        height: Constants.MAX_HEIGHT,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column'
+    },
+    clearedLevelContainer: {
+        width: Constants.YR * 250,
+        height: Constants.YR * 250,
+        borderRadius: Constants.YR * 125,
+        backgroundColor: '#ff1a1a',
+        borderWidth: 5,
+        borderColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column'
+    },
+    clearedLevelText: {
+        fontSize: 45,
+        color: 'white',
+        fontFamily: 'LilitaOne',
+    },
+    panel: {
+        backgroundColor: '#29aecc',
+        borderColor: 'white',
+        borderWidth: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: Constants.YR * 350,
+        height: Constants.YR * 200,
+        marginTop: Constants.YR * -40
+    },
+    panelTitle: {
+        fontSize: 45,
+        color: 'black',
+        fontFamily: 'LilitaOne',
+        textShadowColor: 'white',
+        textShadowOffset: { width: 1, height: 1},
+        textShadowRadius: 2
+    },
+    panelText: {
+        fontSize: 31,
+        color: 'white',
+        fontFamily: 'LilitaOne',
+        textShadowColor: 'black',
+        textShadowOffset: { width: 1, height: 1},
+        textShadowRadius: 2,
+        marginBottom: Constants.YR * 50
+    },
+    panelButtonsContainer: {
+        position: 'absolute',
+        height: Constants.YR * 80,
+        bottom: Constants.YR * -40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: Constants.YR * 350,
+        flexDirection: 'row'
+    },
+    panelButton: {
+        width: Constants.YR * 80,
+        height: Constants.YR * 80,
+        borderRadius: Constants.YR * 40,
+        backgroundColor: '#ff1a1a',
+        borderWidth: 5,
+        borderColor: 'white',
+        marginLeft: Constants.XR * 15,
+        marginRight: Constants.XR * 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    panelButtonIcon: {
+        width: Constants.YR * 35,
+        height: Constants.YR * 35,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     backgroundImage: {
         width: Constants.MAX_WIDTH,
         height: Constants.MAX_HEIGHT,
         position: 'absolute'
+    },
+    topPanel: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: Constants.YR * 250,
+        flexDirection: 'column'
+    },
+    statsContainer: {
+        width: Constants.MAX_WIDTH,
+        height: Constants.YR * 120,
+        flexDirection: 'row'
+    },
+    stats: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    pauseButton: {
+        width: Constants.YR * 50,
+        height: Constants.YR * 50,
+        backgroundColor: 'black',
+        borderColor: 'white',
+        borderWidth: 3,
+        borderRadius: 10,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    pauseButtonIcon: {
+        width: Constants.YR * 25,
+        height: Constants.YR * 25,
+    },
+    levelContainer: {
+        width: Constants.YR * 80,
+        height: Constants.YR * 80,
+        backgroundColor: '#ff1a1a',
+        borderColor: 'white',
+        borderWidth: 3,
+        borderRadius: 10,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    levelTitle: {
+        fontSize: 21,
+        color: 'white',
+        fontFamily: 'LilitaOne'
+    },
+    levelNumber: {
+        fontSize: 17,
+        color: 'white',
+        fontFamily: 'LilitaOne'
+    },
+    scoreIcon: {
+        position: 'absolute',
+        left: 0,
+        width: Constants.YR * 40,
+        height: Constants.YR * 40,
+    },
+    scoreBar: {
+        height: Constants.YR * 25,
+        position: 'absolute',
+        left: 20,
+        right: 5,
+        backgroundColor: 'white',
+        borderRadius: 13,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    scoreNumber: {
+        fontSize: 17,
+        color: 'black',
+        fontFamily: 'LilitaOne',
+    },
+    timeIcon: {
+        position: 'absolute',
+        left: 0,
+        width: Constants.YR * 40,
+        height: Constants.YR * 40,
+    },
+    timeBar: {
+        height: Constants.YR * 25,
+        position: 'absolute',
+        left: 20,
+        right: 5,
+        backgroundColor: 'white',
+        borderRadius: 13,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    timeNumber: {
+        fontSize: 17,
+        color: 'black',
+        fontFamily: 'LilitaOne',
+    },
+    healthBarContainer: {
+        height: Constants.YR * 40,
+        width: Constants.MAX_WIDTH - Constants.XR * 120,
+        marginLeft: Constants.XR * 60
+    },
+    healthIcon: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: Constants.YR * 46,
+        height: Constants.YR * 40,
+    },
+    healthBar: {
+        height: Constants.YR * 20,
+        width: Constants.MAX_WIDTH - Constants.XR * 100 - Constants.XR * 60,
+        marginLeft: Constants.XR * 40,
+        marginTop: Constants.YR * 10,
+        backgroundColor: 'white',
+        borderRadius: Constants.YR * 10
+    },
+    healthBarInner: {
+        position: 'absolute',
+        backgroundColor: '#ff1a1a',
+        left: Constants.XR * 3,
+
+        top: Constants.YR * 3,
+        bottom: Constants.YR * 3,
+        borderRadius: Constants.YR * 8
     },
     playArea: {
         width: Constants.MAX_WIDTH,
