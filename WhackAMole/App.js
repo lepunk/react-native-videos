@@ -1,41 +1,78 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Button, Image, SafeAreaView, Text } from 'react-native';
+import {
+    View,
+    StyleSheet,
+    Button,
+    Image,
+    SafeAreaView,
+    Text,
+    TouchableWithoutFeedback
+} from 'react-native';
 import Images from './assets/Images';
 import SpriteSheet from 'rn-sprite-sheet';
 import Constants from './Constants';
 import Mole from './Mole';
 
+const DEFAULT_TIME = 5;
+const DEFAULT_STATE = {
+    level: 1,
+    score: 0,
+    time: DEFAULT_TIME,
+    cleared: false,
+    paused: false,
+    gameover: false,
+    health: 100
+}
+
 export default class App extends Component {
     constructor(props){
         super(props);
         this.moles = [];
+        this.state = DEFAULT_STATE
+    }
+
+    componentDidMount = () => {
+        this.reset();
+    }
+
+    setupTicks = () => {
+        let speed = 750 - (this.state.level * 50);
+        if (speed < 350){
+            speed = 350;
+        }
+        console.log(speed);
+        this.interval = setInterval(this.popRandomMole, speed);
+        this.timeInterval = setInterval(this.timerTick, 1000);
+    }
+
+    reset = () => {
         this.molesPopping = 0;
 
-        this.state = {
-            level: 1,
-            score: 0,
-            time: 60,
+        this.setState(DEFAULT_STATE, this.setupTicks);
+    }
+
+    nextLevel = () => {
+        this.molesPopping = 0;
+
+        this.setState({
+            level: this.state.level + 1,
             cleared: false,
-            paused: false,
-            gameover: false,
-            health: 100
+            time: DEFAULT_TIME
+        }, this.setupTicks)
+    }
+
+    timerTick = () => {
+        if (this.state.time === 0){
+            clearInterval(this.interval);
+            clearInterval(this.timeInterval);
+            this.setState({
+                cleared: true
+            })
+        } else {
+            this.setState({
+                time: this.state.time - 1
+            })
         }
-
-        this.interval = setInterval(this.popRandomMole, 750);
-        this.timeInterval = setInterval(() => {
-            if (this.state.time === 0){
-                clearInterval(this.interval);
-                clearInterval(this.timeInterval);
-                this.setState({
-                    cleared: true
-                })
-            } else {
-                this.setState({
-                    time: this.state.time - 1
-                })
-            }
-
-        }, 1000);
     }
 
     randomBetween = (min, max) => {
@@ -156,13 +193,16 @@ export default class App extends Component {
                         <Text style={styles.panelText}>Score: {this.state.score}</Text>
 
                         <View style={styles.panelButtonsContainer}>
-                            <View style={styles.panelButton}>
-                                <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.restartIcon} />
-                            </View>
-
-                            <View style={styles.panelButton}>
-                                <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.playIcon} />
-                            </View>
+                            <TouchableWithoutFeedback onPress={this.reset}>
+                                <View style={styles.panelButton}>
+                                    <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.restartIcon} />
+                                </View>
+                            </TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback onPress={this.nextLevel}>
+                                <View style={styles.panelButton}>
+                                    <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.playIcon} />
+                                </View>
+                            </TouchableWithoutFeedback>
                         </View>
                     </View>
                 </View>}

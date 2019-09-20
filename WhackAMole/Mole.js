@@ -67,7 +67,7 @@ export default class Mole extends Component {
                                     })
                                 }
                             })
-                        }, 750)
+                        }, 1000)
                     } else {
                         this.actionTimeout = setTimeout(() => {
                             this.mole.play({
