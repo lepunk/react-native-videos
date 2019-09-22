@@ -22,9 +22,9 @@ export default class Mole extends Component {
         this.isAttacking = false;
         this.isPopping = true;
 
-        this.isFeisty = Math.random() < 0.3;
+        this.isFeisty = Math.random() < 0.4;
         if (!this.isFeisty){
-            this.isHealing = Math.random() < 0.1;
+            this.isHealing = Math.random() < 0.05;
         }
 
         if (this.isHealing){

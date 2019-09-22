@@ -12,6 +12,9 @@ import Images from './assets/Images';
 import SpriteSheet from 'rn-sprite-sheet';
 import Constants from './Constants';
 import Mole from './Mole';
+import GameOver from './GameOver';
+import Clear from './Clear';
+import Pause from './Pause';
 
 const DEFAULT_TIME = 5;
 const DEFAULT_STATE = {
@@ -28,11 +31,13 @@ export default class App extends Component {
     constructor(props){
         super(props);
         this.moles = [];
-        this.state = DEFAULT_STATE
+        this.state = DEFAULT_STATE;
+        this.interval = null;
+        this.timeInterval = null;
     }
 
     componentDidMount = () => {
-        this.reset();
+        this.setState(DEFAULT_STATE, this.pause);
     }
 
     setupTicks = () => {
@@ -40,9 +45,9 @@ export default class App extends Component {
         if (speed < 350){
             speed = 350;
         }
-        console.log(speed);
         this.interval = setInterval(this.popRandomMole, speed);
         this.timeInterval = setInterval(this.timerTick, 1000);
+
     }
 
     reset = () => {
@@ -51,12 +56,28 @@ export default class App extends Component {
         this.setState(DEFAULT_STATE, this.setupTicks);
     }
 
+    pause = () => {
+        if (this.interval) clearInterval(this.interval);
+        if (this.timeInterval) clearInterval(this.timeInterval);
+        this.setState({
+            paused: true
+        });
+    }
+
+    resume = () => {
+        this.molesPopping = 0;
+        this.setState({
+            paused: false
+        }, this.setupTicks);
+    }
+
     nextLevel = () => {
         this.molesPopping = 0;
 
         this.setState({
             level: this.state.level + 1,
             cleared: false,
+            gameover: false,
             time: DEFAULT_TIME
         }, this.setupTicks)
     }
@@ -103,15 +124,32 @@ export default class App extends Component {
     }
 
     onDamage = () => {
-        let targetHealth = this.state.health - 5 < 0 ? 0 : this.state.health - 5;
+        if (this.state.cleared || this.state.gameOver || this.state.paused){
+            return;
+        }
+
+        let targetHealth = this.state.health - 10 < 0 ? 0 : this.state.health - 10;
 
         this.setState({
             health: targetHealth
         });
+
+        if (targetHealth <= 0){
+            this.gameOver();
+        }
+    }
+
+    gameOver = () => {
+        clearInterval(this.interval);
+        clearInterval(this.timeInterval);
+
+        this.setState({
+            gameover: true
+        });
     }
 
     onHeal = () => {
-        let targetHealth = this.state.health + 5 > 100 ? 100 : this.state.health + 5;
+        let targetHealth = this.state.health + 10 > 100 ? 100 : this.state.health + 10;
         this.setState({
             health: targetHealth
         });
@@ -144,9 +182,11 @@ export default class App extends Component {
                                 <Image style={styles.scoreIcon} resizeMode="stretch" source={Images.scoreIcon} />
                             </View>
                             <View style={styles.stats}>
-                                <View style={styles.pauseButton}>
-                                    <Image style={styles.pauseButtonIcon} resizeMode="stretch" source={Images.pauseIcon} />
-                                </View>
+                                <TouchableWithoutFeedback onPress={this.pause}>
+                                    <View style={styles.pauseButton}>
+                                        <Image style={styles.pauseButtonIcon} resizeMode="stretch" source={Images.pauseIcon} />
+                                    </View>
+                                </TouchableWithoutFeedback>
                             </View>
                         </View>
 
@@ -182,30 +222,9 @@ export default class App extends Component {
                         )
                     })}
                 </View>
-                {this.state.cleared && <View style={styles.clearScreen}>
-                    <View style={styles.clearedLevelContainer}>
-                        <Text style={styles.clearedLevelText}>Level</Text>
-                        <Text style={styles.clearedLevelText}>{this.state.level}</Text>
-                    </View>
-
-                    <View style={styles.panel}>
-                        <Text style={styles.panelTitle}>Cleared</Text>
-                        <Text style={styles.panelText}>Score: {this.state.score}</Text>
-
-                        <View style={styles.panelButtonsContainer}>
-                            <TouchableWithoutFeedback onPress={this.reset}>
-                                <View style={styles.panelButton}>
-                                    <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.restartIcon} />
-                                </View>
-                            </TouchableWithoutFeedback>
-                            <TouchableWithoutFeedback onPress={this.nextLevel}>
-                                <View style={styles.panelButton}>
-                                    <Image style={styles.panelButtonIcon} resizeMode="contain" source={Images.playIcon} />
-                                </View>
-                            </TouchableWithoutFeedback>
-                        </View>
-                    </View>
-                </View>}
+                {this.state.cleared && <Clear onReset={this.reset} onNextLevel={this.nextLevel} level={this.state.level} score={this.state.score} />}
+                {this.state.gameover && <GameOver onReset={this.reset} level={this.state.level} score={this.state.score} />}
+                {this.state.paused && <Pause onReset={this.reset} onResume={this.resume} />}
             </View>
         )
     }
@@ -216,88 +235,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column'
     },
-    clearScreen: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: Constants.MAX_WIDTH,
-        height: Constants.MAX_HEIGHT,
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column'
-    },
-    clearedLevelContainer: {
-        width: Constants.YR * 250,
-        height: Constants.YR * 250,
-        borderRadius: Constants.YR * 125,
-        backgroundColor: '#ff1a1a',
-        borderWidth: 5,
-        borderColor: 'white',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column'
-    },
-    clearedLevelText: {
-        fontSize: 45,
-        color: 'white',
-        fontFamily: 'LilitaOne',
-    },
-    panel: {
-        backgroundColor: '#29aecc',
-        borderColor: 'white',
-        borderWidth: 5,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: Constants.YR * 350,
-        height: Constants.YR * 200,
-        marginTop: Constants.YR * -40
-    },
-    panelTitle: {
-        fontSize: 45,
-        color: 'black',
-        fontFamily: 'LilitaOne',
-        textShadowColor: 'white',
-        textShadowOffset: { width: 1, height: 1},
-        textShadowRadius: 2
-    },
-    panelText: {
-        fontSize: 31,
-        color: 'white',
-        fontFamily: 'LilitaOne',
-        textShadowColor: 'black',
-        textShadowOffset: { width: 1, height: 1},
-        textShadowRadius: 2,
-        marginBottom: Constants.YR * 50
-    },
-    panelButtonsContainer: {
-        position: 'absolute',
-        height: Constants.YR * 80,
-        bottom: Constants.YR * -40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: Constants.YR * 350,
-        flexDirection: 'row'
-    },
-    panelButton: {
-        width: Constants.YR * 80,
-        height: Constants.YR * 80,
-        borderRadius: Constants.YR * 40,
-        backgroundColor: '#ff1a1a',
-        borderWidth: 5,
-        borderColor: 'white',
-        marginLeft: Constants.XR * 15,
-        marginRight: Constants.XR * 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    panelButtonIcon: {
-        width: Constants.YR * 35,
-        height: Constants.YR * 35,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+
     backgroundImage: {
         width: Constants.MAX_WIDTH,
         height: Constants.MAX_HEIGHT,
