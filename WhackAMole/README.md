@@ -1,6 +1,6 @@
-# Flappy Bird
+# Whack-A-Mole
 
-React Native implementation of the classic Flappy Bird game using react-native-game-engine and Matter.js
+React Native implementation of a Whack-A-Mole game using rn-sprite-sheet
 
 **Running the project**
 
@@ -10,12 +10,10 @@ React Native implementation of the classic Flappy Bird game using react-native-g
 
 **How it looks like**
 
-<img src="https://miro.medium.com/max/600/1*0LsQWoD1CWdgwsY-4ir-ZA.gif" width="200" />
+<img src="https://miro.medium.com/max/1200/1*pkk3mHUZrpcUsuJJvm-UoA.gif" width="200" />
 
 **Video Walkthrough**
-
-- [Part #1](https://www.youtube.com/watch?v=qBGnfULn8W4)
-- [Part #2](https://www.youtube.com/watch?v=XzLekeXt-Bg)
+[Watch on YouTube (please subscribe)](https://www.youtube.com/watch?v=0IwPVBmurYg)
 
 **Medium Blog Post:**
 [Read on Medium](https://medium.com/better-programming/making-a-production-ready-flappy-bird-in-react-native-751713661a60)
