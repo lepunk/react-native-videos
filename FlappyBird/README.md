@@ -10,7 +10,7 @@ React Native implementation of the classic Flappy Bird game using react-native-g
 
 **How it looks like**
 
-![flappy bird in react native](https://miro.medium.com/max/600/1*0LsQWoD1CWdgwsY-4ir-ZA.gif "Flappy Bird in React Native")
+<img src="https://miro.medium.com/max/600/1*0LsQWoD1CWdgwsY-4ir-ZA.gif" width="200" />
 
 **Video Walkthrough**
 
