@@ -5,9 +5,7 @@ import { transformOrigin } from "react-native-redash";
 
 const { interpolate } = Animated;
 const { width, height } = Dimensions.get("window");
-const W = width;
-const H = W;
-const innerR = (W / 2) - 50;
+const R = width / 2 - 80; // size of the inner circle
 
 const styles = StyleSheet.create({
     container: {
@@ -16,10 +14,10 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     rotaryContainer: {
-        width: W,
-        height: H,
+        width: R * 2,
+        height: R * 2,
         backgroundColor: 'red',
-        borderRadius: W / 2
+        borderRadius: R
     }
 });
 
@@ -31,11 +29,18 @@ export default class App extends Component {
     render() {
         const index = new Animated.Value(0);
         const length = 10;
-        const l = Math.sin(Math.PI / length);
-        const r = (innerR * l) / (1 - l);
-        const R = W;
+
+        //
+        const k = Math.sin(Math.PI / length) / (1 - Math.sin(Math.PI / length));
+        // k = r / R;
+
+        const r = k * R;
+
+        //const l = Math.sin(Math.PI / length);
+        //const r = (innerR * l) / (1 - l);
+        //const R = W;
         const cx = width / 2 - r;
-        const cy = R - r;
+        const cy = (height / 2) - R - (r );
         const segment = (2 * Math.PI) / length;
         const rotateZ = interpolate(index, {
             inputRange: [0, length],
@@ -58,7 +63,7 @@ export default class App extends Component {
                             {...{ key }}
                             style={{
                                 position: "absolute",
-                                top: 0,
+                                top: (height / 2) - (R * 2) - (r * 2),
                                 left: 0,
                                 transform: [
                                     { translateX: cx },
