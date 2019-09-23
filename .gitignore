@@ -1,0 +1,5 @@
+ios/build
+ios/Pods
+package-lock.json
+Podfile.lock
+node_modules
